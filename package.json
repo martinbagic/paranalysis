@@ -1,0 +1,16 @@
+{
+  "name": "martin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "martin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "d3": "^6.1.1",
+    "ml-pca": "^4.0.1"
+  }
+}
