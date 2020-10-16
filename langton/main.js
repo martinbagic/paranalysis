@@ -117,7 +117,7 @@ function step() {
   //     (exit) => exit
   //   );
 
-  let t = new Date().getTime();
-  console.log(t - time);
-  time = t;
+  // let t = new Date().getTime();
+  // console.log(t - time);
+  // time = t;
 }
