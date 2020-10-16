@@ -1,15 +1,7 @@
-//
-// white 0 -> turn left
-// black 1 -> turn right
-//
-// orientation = 0 1 2 3 .. up right down left
-//
-
 let svg = d3.select("svg");
 
 let aux = {
   rectDim: 15,
-  colorantDomain: [10, 0],
 };
 
 aux["nHorz"] = Math.floor(window.innerWidth / aux.rectDim);
@@ -20,10 +12,8 @@ aux.rectH = window.innerHeight / aux.nVert;
 
 svg.attr("width", aux.rectW * aux.nHorz).attr("height", aux.rectH * aux.nVert);
 
-let colorant = d3
-  .scaleSequential()
-  .domain(aux.colorantDomain)
-  .interpolator(d3.interpolateCubehelixDefault);
+let colorantBlack = d3.scaleSequential(d3.interpolateTurbo).domain([15, 0]);
+let colorantWhite = d3.scaleSequential(d3.interpolateGreys).domain([0, 8]);
 
 let x,
   y,
@@ -69,8 +59,11 @@ function next_pos(x, y, orient) {
 
 let timer;
 let still = true;
+let time = new Date().getTime();
 
 let canvas = svg.append("g");
+
+// let ant = svg.append("circle").attr("fill","white").attr("height",aux.rectH - 0.3).attr("width",aux.rectW-0.3)
 
 let tiles = canvas
   .selectAll("rect")
@@ -81,12 +74,15 @@ let tiles = canvas
   .attr("height", aux.rectH - 0.3)
   .attr("width", aux.rectW - 0.3)
   .attr("i", (_, i) => i)
-  .attr("fill", (d) => colorant(d ** 0.5))
+  .attr("stroke", "black")
+  .attr("stroke-width", 0.15)
+  .attr("fill", "white")
+  .attr("id", (_, i) => `rect${i}`)
   .on("click", function (tile) {
     if (still) {
       still = false;
 
-      if (typeof x == "undefined") {
+      if (x == null) {
         let i = d3.select(this).attr("i");
         y = Math.floor(i / aux.nVert);
         x = Math.floor(i % aux.nVert);
@@ -103,16 +99,25 @@ function step() {
   let new_x, new_y;
   [new_x, new_y, orient] = next_pos(x, y, orient);
   flat[x + y * aux.nVert] += 1;
-  // if (flat[x + y * aux.nVert] > aux.colorantDomain[1]) {
-  //   aux.colorantDomain[1] += 5;
-  //   colorant = d3.scaleSequential().domain(aux.colorantDomain).interpolator(d3.interpolateBlues);
-  // }
   x = new_x;
   y = new_y;
 
-  tiles.data(flat).join(
-    (enter) => enter,
-    (update) => update.attr("fill", (d) => colorant(d ** 0.5)),
-    (exit) => exit
-  );
+  let tile = d3.select(`#rect${x + y * aux.nVert}`);
+  tile.attr("fill", function () {
+    let d = flat[x + y * aux.nVert];
+    return d % 2 ? colorantBlack(d ** 0.5) : colorantWhite(d ** 0.5);
+  });
+
+  //   tiles.data(flat).join(
+  //     (enter) => enter,
+  //     (update) =>
+  //       update.attr("fill", (d) =>
+  //         d % 2 ? colorantBlack(d ** 0.5) : colorantWhite(d ** 0.5)
+  //       ),
+  //     (exit) => exit
+  //   );
+
+  let t = new Date().getTime();
+  console.log(t - time);
+  time = t;
 }
