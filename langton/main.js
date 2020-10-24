@@ -1,14 +1,16 @@
 let svg = d3.select("svg");
 
 let aux = {
-  rectDim: 15,
+  rectDim: 20,
 };
 
-aux["nHorz"] = Math.floor(window.innerWidth / aux.rectDim);
+aux.nHorz = Math.floor(window.innerWidth / aux.rectDim);
 aux.nVert = Math.floor(window.innerHeight / aux.rectDim);
 
 aux.rectW = window.innerWidth / aux.nHorz;
 aux.rectH = window.innerHeight / aux.nVert;
+
+console.log(aux);
 
 svg.attr("width", aux.rectW * aux.nHorz).attr("height", aux.rectH * aux.nVert);
 
@@ -65,18 +67,20 @@ let canvas = svg.append("g");
 
 // let ant = svg.append("circle").attr("fill","white").attr("height",aux.rectH - 0.3).attr("width",aux.rectW-0.3)
 
+console.log(aux);
 let tiles = canvas
   .selectAll("rect")
   .data(flat)
   .join("rect")
-  .attr("x", (_, i) => aux.rectH * Math.floor(i / aux.nVert) + 0.15)
-  .attr("y", (_, i) => aux.rectH * Math.floor(i % aux.nVert) + 0.15)
-  .attr("height", aux.rectH - 0.3)
-  .attr("width", aux.rectW - 0.3)
+  .attr("x", (_, i) => aux.rectW * Math.floor(i / aux.nVert) + 0.075)
+  .attr("y", (_, i) => aux.rectH * Math.floor(i % aux.nVert) + 0.075)
+  .attr("height", aux.rectH - 0.15)
+  .attr("width", aux.rectW - 0.15)
   .attr("i", (_, i) => i)
   .attr("stroke", "black")
   .attr("stroke-width", 0.15)
   .attr("fill", "white")
+  .attr("cursor", "pointer")
   .attr("id", (_, i) => `rect${i}`)
   .on("click", function (tile) {
     if (still) {
@@ -107,17 +111,18 @@ function step() {
     let d = flat[x + y * aux.nVert];
     return d % 2 ? colorantBlack(d ** 0.5) : colorantWhite(d ** 0.5);
   });
-
-  //   tiles.data(flat).join(
-  //     (enter) => enter,
-  //     (update) =>
-  //       update.attr("fill", (d) =>
-  //         d % 2 ? colorantBlack(d ** 0.5) : colorantWhite(d ** 0.5)
-  //       ),
-  //     (exit) => exit
-  //   );
-
-  // let t = new Date().getTime();
-  // console.log(t - time);
-  // time = t;
 }
+
+function resetAnt() {
+  if (x == null) return;
+  console.log("Restarting the Ant");
+  orient = 0;
+  flat = Array(aux.nVert * aux.nHorz).fill(0);
+  still = true;
+  timer.stop();
+  tiles.attr("fill", "white");
+  x = null;
+  y = null;
+}
+
+d3.select("div.restart").on("click", resetAnt);
